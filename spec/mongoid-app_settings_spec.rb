@@ -2,82 +2,73 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Mongoid::AppSettings" do
   let(:settings) do
-    settings = Class.new 
-    settings.instance_eval { include Mongoid::AppSettings }
-    settings
-  end
+   settings = Class.new
+   settings.instance_eval { include Mongoid::AppSettings }
+   settings
+ end
 
-  let(:other_settings) do
-    other_settings = Class.new
-    other_settings.instance_eval { include Mongoid::AppSettings }
-    other_settings
-  end
+ let(:other_settings) do
+   other_settings = Class.new
+   other_settings.instance_eval { include Mongoid::AppSettings }
+   other_settings
+ end
 
-  describe "defining settings" do
+  describe "defining settings (part 1)" do
     it "should be possible to define a setting" do
       settings.instance_eval { setting :something }
-      settings.something.should be_nil
+      expect(settings.something).to be_nil
     end
 
     it "should be possible to specify default values" do
       settings.instance_eval { setting :foo, :default => "bar" }
-      settings.foo.should == "bar"
+      expect(settings.foo).to eq "bar"
     end
 
     it "should be possible to use defaults of other settings in defaults" do
-      settings.instance_eval { setting :foo, :default => "bar"
+      settings.instance_eval { setting :foo, default:"bar"
                               setting :baz, :default => "#{foo} quux" }
-      settings.baz.should == "bar quux"
+      expect(settings.baz).to eq "bar quux"
     end
 
-    it "should be possible to use values of other settings in defaults" do
+    it "should create a setter function" do
       settings.instance_eval { setting :foo, :default => "bar" }
-      settings.foo = "baz"
-      settings.instance_eval { setting :qux, :default => "#{foo} quux" }
-      settings.qux.should === "baz quux"
+      expect(settings).to respond_to :foo=
     end
 
-    it "should define fields on the record" do
-      settings.instance_eval { setting :something }
-      expect { 
-        settings.send(:record).something 
-      }.not_to raise_error(NoMethodError)
-    end
   end
 
   describe "setting values" do
-    it "should be possible to save a setting" do 
+    it "should be possible to save a setting" do
       settings.instance_eval { setting :something }
       settings.something = "some nice value"
-      settings.something.should == "some nice value"
+      expect(settings.something).to eq "some nice value"
     end
 
     it "should save settings to mongodb" do
-      settings.instance_eval { setting :something }
       other_settings.instance_eval { setting :something }
 
-      settings.something = "some nice value"
-      other_settings.something.should == "some nice value"
+      other_settings.something = "some nice value"
+      expect(other_settings.something).to eq "some nice value"
     end
 
     it "should be possible to overwrite a default value" do
       settings.instance_eval { setting :foo, :default => "bar" }
       settings.foo = "baz"
-      settings.foo.should == "baz"
+      expect(settings.foo).to eq "baz"
     end
 
     it "should be possible to overwrite a value with something else" do
       settings.instance_eval { setting :foo, :default => "bar" }
       settings.foo = "baz"
       settings.foo = "quux"
-      settings.foo.should == "quux"
+      expect(settings.foo).to eq "quux"
     end
 
     it "should be possible to unset a value, reverting to default" do
       settings.instance_eval { setting :foo, :default => "bar" }
       settings.foo = "baz"
       settings.delete(:foo)
-      settings.foo.should == "bar"
+      expect(settings.foo).to eq "bar"
     end
 
     it "should be possible to get a hash of all settings and their values" do
@@ -87,7 +78,7 @@ describe "Mongoid::AppSettings" do
 
       settings.two = "My value"
       settings.three = nil
-      settings.all.should == {:one => "One", :two => "My value", :three => nil}
+      expect(settings.all).to eq({:one => "One", :two => "My value", :three => nil})
     end
 
     it "should be possible to get a hash of all settings and their defaults" do
@@ -97,7 +88,7 @@ describe "Mongoid::AppSettings" do
 
       settings.two = "My value"
       settings.three = nil
-      settings.defaults.should == {:one => "One", :two => "Two", :three => nil}
+      expect(settings.defaults).to eq({:one => "One", :two => "Two", :three => nil})
     end
 
     it "should be possible to overwrite a value with false" do
@@ -106,7 +97,7 @@ describe "Mongoid::AppSettings" do
       settings.instance_eval { setting :foo, :default => "bar" }
       settings.foo = "baz"
       settings.foo = false
-      settings.foo.should == false
+      expect(settings.foo).to be_falsy
     end
 
     it "should be possible to overwrite a value with false" do
@@ -115,9 +106,26 @@ describe "Mongoid::AppSettings" do
       settings.instance_eval { setting :foo, :default => "bar" }
       settings.foo = "baz"
       settings.foo = nil
-      settings.foo.should == nil
+      expect(settings.foo).to be_nil
     end
   end
+
+  describe "defining settings (part 2)" do
+    it "should be possible to use values of other settings in defaults" do
+      settings.instance_eval { setting :foo, :default => "bar" }
+      settings.foo = "baz"
+      settings.instance_eval { setting :qux, :default => "#{foo} quux" }
+      expect(settings.qux).to eq "baz quux"
+    end
+
+    it "should define fields on the record" do
+      settings.instance_eval { setting :something }
+      expect {
+        (settings.send(:record).something)
+      }.not_to raise_error
+    end
+  end
+
 
   describe "reload behaviour" do
     it "should not reload for every call" do
@@ -126,7 +134,7 @@ describe "Mongoid::AppSettings" do
       other_settings.foo # force other_settings to load the record
 
       settings.foo = "bar"
-      other_settings.foo.should be_nil
+      expect(other_settings.foo).to be_nil
     end
 
     it "should be possible to reload" do
@@ -136,7 +144,7 @@ describe "Mongoid::AppSettings" do
 
       settings.foo = "bar"
       other_settings.reload
-      other_settings.foo.should == "bar"
+      expect(settings.foo).to eq "bar"
     end
   end
 end

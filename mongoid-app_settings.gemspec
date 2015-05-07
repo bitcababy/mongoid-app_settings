@@ -6,11 +6,11 @@ require 'mongoid/app_settings/version'
 Gem::Specification.new do |gem|
   gem.name = "mongoid-app_settings"
   gem.version = Mongoid::AppSettings::VERSION
-  gem.authors = ["Marten Veldthuis"]
-  gem.email = "marten@veldthuis.com"
+  gem.authors = ["Marten Veldthuis, Meredith Lesly"]
+  gem.email = "bitcababy@gmail.com"
   gem.description = "Mongoid::AppSettings allows you to store settings in MongoDB, and access them easily"
   gem.summary = "Store settings for your application in MongoDB"
-  gem.homepage = "http://github.com/marten/mongoid-app_settings"
+  gem.homepage = "http://github.com/bitcababy/mongoid-app_settings"
   gem.licenses = ["MIT"]
 
   gem.files = `git ls-files`.split($/)
