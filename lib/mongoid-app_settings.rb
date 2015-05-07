@@ -47,7 +47,7 @@ module Mongoid
           end
         end
       end
-      
+
       # Force a reload from the database
       def reload
         @record = nil
@@ -98,14 +98,10 @@ module Mongoid
       end
 
       def []=(name, value) # :nodoc:
-        if value
-          record.set(name, value)
-        else 
-          # FIXME Mongoid's #set doesn't work for false/nil.
-          # Pull request has been submitted, but until then
-          # this workaround is needed.
+        if record.attributes.include?(name)
           record[name] = value
-          record.save
+        else
+          record.write_attribute(name, value)
         end
       end
     end
