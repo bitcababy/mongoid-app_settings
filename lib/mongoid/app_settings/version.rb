@@ -1,5 +1,5 @@
 module Mongoid
   module AppSettings
-    VERSION = '1.1.0'
+    VERSION = '4.0.0'
   end
 end
